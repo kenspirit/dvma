@@ -1,0 +1,43 @@
+<h1>Welcome to meet XSS</h1>
+
+<div>
+  <h2>Mess-up in HTML</h2>
+  <ul>
+    <li>
+      <a href="/xss/html/unsafe?search=iPhone%22%20onclick%3D%22alert(document.cookie)%>">Un-Safe browsing</a>
+    </li>
+    <li>
+      <a href="/xss/html/safe?search=iPhone%22%20onclick%3D%22alert(document.cookie)">Safe browsing</a>
+    </li>
+  </ul>
+</div>
+
+<div>
+  <h2>Mess-up in JS</h2>
+  <ul>
+    <li>
+      <a href="/xss/js/unsafe?from=500%3Balert(document.cookie)%>">Un-Safe browsing</a>
+    </li>
+    <li>
+      <a href="/xss/js/safe?from=500%3Balert(document.cookie)">Safe browsing</a>
+    </li>
+  </ul>
+</div>
+
+<div>
+  <h2>DOM-based</h2>
+  <ul>
+    <li>
+      <a href="/xss/dom/unsafe#<%= dangerInput %>">Un-Safe browsing</a>
+    </li>
+    <li>
+      <a href="/xss/dom/safe#<%= dangerInput %>">Safe browsing</a>
+    </li>
+    <li>
+      <a href="/xss/dom/unsafe-complex?from=%23%22%20onclick%3D%22alert(document.cookie)">Un-Safe browsing (Complex)</a>
+    </li>
+    <li>
+      <a href="/xss/dom/safe-complex?from=%23%22%20onclick%3D%22alert(document.cookie)">Safe browsing (Complex)</a>
+    </li>
+  </ul>
+</div>

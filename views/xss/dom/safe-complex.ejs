@@ -1,0 +1,12 @@
+<%- include('../../esapi-init'); %>
+<div id="demo">
+  <div>
+    Home &gt; <label id="currentLocation"></label>
+  </div>
+
+  <script>
+    const whereAmI = '<%= dangerInput %>';
+    document.getElementById('currentLocation').innerHTML = '<a href="' + $ESAPI.encoder().encodeForHTML(whereAmI) + '">Back</a>';
+  </script>
+</div>
+<%- include('../../exposure'); %>

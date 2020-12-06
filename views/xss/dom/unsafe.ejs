@@ -1,0 +1,12 @@
+<%- include('../../esapi-init'); %>
+<div id="demo">
+  <div>
+    Home &gt; <label id="currentLocation"></label>
+  </div>
+
+  <script>
+    const whereAmI = decodeURIComponent(location.hash.substr(1));
+    document.getElementById('currentLocation').innerHTML = whereAmI;
+  </script>
+</div>
+<%- include('../../exposure'); %>
