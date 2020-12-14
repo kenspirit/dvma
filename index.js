@@ -2,7 +2,10 @@ const path = require('path')
 const glob = require('glob')
 const express = require('express')
 const session = require('express-session')
+const bodyParser = require("body-parser")
+const flash = require('connect-flash')
 const ESAPI = require('node-esapi')
+const Auth = require('./auth')
 
 const app = express()
 const port = 3000
@@ -24,19 +27,12 @@ app.use(session({
     httpOnly: true
   }
 }))
+app.use(flash())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(ESAPI.middleware())
 
-app.use((req, res, next) => {
-  // Sample unsafe cookie
-  res.cookie('main-not-http-only', 'unsafe-main',
-    {
-      path: '/',
-      httpOnly: false
-    })
-
-  next()
-})
+Auth.init(app)
 
 const files = glob.sync(path.resolve(__dirname, './modules/*/*-routes.js'), {})
 files.forEach((file) => {
