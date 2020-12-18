@@ -1,29 +1,29 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
-const argon2 = require('argon2')
-const DB = require('./db')
+const UserService = require('./modules/user/user-service')
 
 function init(app) {
   passport.use(new LocalStrategy(
     function (username, password, done) {
-      DB.users.findOne({ username: username }, function (err, user) {
-        if (err) {
-          return done(err)
-        }
-        if (!user) {
-          return done(null, false, { message: 'Unmatched username/password combination.' })
-        }
-        
-        return argon2.verify(user.passwordHash, password)
-          .then((isMatched) => {
-            if (isMatched) {
-              done(null, user)
-            } else {
-              done(null, false, { message: 'Unmatched username/password combination.' })
-            }
-          })
-          .catch(done)
-      })
+      UserService.findOneByUserName(username)
+        .then((user) => {
+          if (!user) {
+            return { isMatched: false, user }
+          }
+
+          return UserService.verifyUserPassword(user.passwordHash, password)
+            .then((isMatched) => {
+              return { isMatched, user }
+            })
+        })
+        .then(({ isMatched, user }) => {
+          if (isMatched) {
+            done(null, user)
+          } else {
+            done(null, false, { message: 'Unmatched username/password combination.' })
+          }
+        })
+        .catch(done)
     }
   ))
 
@@ -32,9 +32,11 @@ function init(app) {
   });
 
   passport.deserializeUser(function (id, done) {
-    DB.users.findOne({ _id: id }, function (err, user) {
-      done(err, user)
-    })
+    UserService.findOneById(id)
+      .then((user) => {
+        done(null, user)
+      })
+      .catch(done)
   })
 
   app.use(passport.initialize())
@@ -108,41 +110,22 @@ function init(app) {
         return res.redirect('/auth/signup?error=password_not_match')
       }
 
-      const username = body.username
-      DB.users.findOne({ username }, (err, dbUser) => {
-        if (err) {
-          return res.redirect('/auth/signup?error=unknown-error')
-        }
-
-        if (dbUser) {
-          return res.redirect('/auth/signup?error=user-existed')
-        }
-
-        argon2.hash(body.password)
-          .then((passwordHash) => {
-            const user = {
-              username,
-              passwordHash
+      UserService.registerUser({ username, password: body.password })
+        .then((createdUser) => {
+          req.login(createdUser, (err) => {
+            if (err) {
+              return res.redirect('/auth/signup?error=unknown-error')
             }
 
-            DB.users.insert(user, (err, createdUser) => {
-              if (err) {
-                return res.redirect('/auth/signup?error=unknown-error')
-              }
-
-              req.login(createdUser, function (err) {
-                if (err) {
-                  return res.redirect('/auth/signup?error=unknown-error')
-                }
-
-                return res.redirect('/');
-              })
-            })
+            return res.redirect('/');
           })
-          .catch((err) => {
-            return res.redirect('/auth/signup?error=unknown-error')
-          })
-      })
+        })
+        .catch((err) => {
+          if (err instanceof BusinessError && err.code === 'BERR_USER_EXISTED') {
+            return res.redirect('/auth/signup?error=user-existed')
+          }
+          res.redirect('/auth/signup?error=unknown-error')
+        })
     })
 
   app.get('/auth/logout', function (req, res) {

@@ -6,6 +6,10 @@ const bodyParser = require("body-parser")
 const flash = require('connect-flash')
 const ESAPI = require('node-esapi')
 const Auth = require('./auth')
+const { initDB } = require('./modules/db')
+const UserService = require('./modules/user/user-service')
+
+global.BusinessError = require('./modules/util/business-error')
 
 const app = express()
 const port = 3000
@@ -32,7 +36,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(ESAPI.middleware())
 
+initDB()
 Auth.init(app)
+UserService.initSampleUsers()
 
 const files = glob.sync(path.resolve(__dirname, './modules/*/*-routes.js'), {})
 files.forEach((file) => {
