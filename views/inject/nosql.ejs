@@ -1,4 +1,4 @@
-<%- include('../../esapi-init'); %>
+<%- include('../esapi-init'); %>
 <div id="demo">
   <div>
     User Name <input type="text" id="searchCriteria" value=""/>
@@ -16,8 +16,35 @@
   </div>
 
   <script>
+    function safeSearch() {
+      _search('nor')
+    }
+
+    function unsafeSearch() {
+      _search('.%2B')
+    }
+
+    function _search(criteria) {
+      document.getElementById('searchCriteria').value = criteria
+      let url = '/inject/nosql/data/<%= type %>'
+      if (criteria) {
+        url += '?username=' + criteria
+      }
+
+      fetch(url)
+        .then((response) => {
+          return response.json()
+        })
+        .then((content) => {
+          const block = document.getElementById('result')
+          block.innerHTML = JSON.stringify(content, null, 2)
+          hljs.highlightBlock(block)
+          block.parentNode.parentNode.style.display = 'block'
+        })
+    }
+
     function revealCode() {
-      fetch('/inject/sql/unsafe-code')
+      fetch('/inject/nosql/code?type=<%= type %>')
         .then((response) => {
           return response.text()
         })
@@ -27,33 +54,6 @@
           hljs.highlightBlock(block)
           block.parentNode.parentNode.style.display = 'block';
         })
-    }
-
-    function _search(criteria) {
-      document.getElementById('searchCriteria').value = criteria
-
-      fetch('/inject/sql/unsafe-data?username=' + criteria)
-        .then((response) => {
-          return response.json()
-        })
-        .then((content) => {
-          const block = document.getElementById('result')
-          block.innerHTML = JSON.stringify(content, null, 2)
-          hljs.highlightBlock(block)
-          block.parentNode.parentNode.style.display = 'block';
-        })
-    }
-
-    function safeSearch() {
-      const criteria = 'normal_user'
-
-      _search(criteria)
-    }
-
-    function unsafeSearch() {
-      const criteria = '\' or 1 = 1--'
-      
-      _search(criteria)
     }
   </script>
 </div>

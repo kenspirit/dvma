@@ -1,3 +1,4 @@
+const joi = require('joi')
 const controller = require('./inject-controller')
 
 module.exports = {
@@ -10,18 +11,33 @@ module.exports = {
     },
     {
       method: 'get',
-      path: '/sql/unsafe',
-      handler: controller.sqlUnsafe
+      path: '/sql',
+      handler: controller.sqlPage
     },
     {
       method: 'get',
-      path: '/sql/unsafe-data',
-      handler: controller.sqlUnsafeData
+      path: '/sql/data',
+      handler: controller.sqlData
     },
     {
       method: 'get',
-      path: '/sql/unsafe-code',
-      handler: controller.sqlUnsafeCode
+      path: '/sql/code',
+      handler: controller.sqlCode
+    },
+    {
+      method: 'get',
+      path: '/nosql',
+      handler: controller.nosqlPage
+    },
+    {
+      method: 'get',
+      path: '/nosql/data/:type',
+      handler: controller.nosqlData
+    },
+    {
+      method: 'get',
+      path: '/nosql/code',
+      handler: controller.nosqlCode
     }
   ]
 }

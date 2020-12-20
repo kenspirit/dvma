@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "glob": "^7.1.6",
+    "joi": "^17.3.0",
     "nedb": "^1.8.0",
     "node-esapi": "^0.0.1",
     "passport": "^0.4.1",

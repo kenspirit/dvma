@@ -1,0 +1,55 @@
+<%- include('../esapi-init'); %>
+<div id="demo">
+  <div>
+    User Name <input type="text" id="searchCriteria" value=""/>
+    <button onclick="safeSearch()">Normal Criteria</button>
+    <button onclick="unsafeSearch()">Danger Input</button>
+    <button onclick="revealCode()">Reveal Code</button>
+  </div>
+  <div style="display: none;">
+    <h2 style="color: #0d51e6;">Result:</h2>
+    <pre><code class="language-json" id="result"></code></pre>
+  </div>
+  <div style="display: none;">
+    <h2 style="color: #4e57cf;">Backend source code:</h2>
+    <pre><code class="language-javascript" id="code"></code></pre>
+  </div>
+
+  <script>
+    function safeSearch() {
+      _search('nor')
+    }
+
+    function unsafeSearch() {
+      _search('\' or 1 = 1--')
+    }
+
+    function _search(criteria) {
+      document.getElementById('searchCriteria').value = criteria
+
+      fetch('/inject/sql/data?type=<%= type %>&username=' + criteria)
+        .then((response) => {
+          return response.json()
+        })
+        .then((content) => {
+          const block = document.getElementById('result')
+          block.innerHTML = JSON.stringify(content, null, 2)
+          hljs.highlightBlock(block)
+          block.parentNode.parentNode.style.display = 'block';
+        })
+    }
+
+    function revealCode() {
+      fetch('/inject/sql/code?type=<%= type %>')
+        .then((response) => {
+          return response.text()
+        })
+        .then((content) => {
+          const block = document.getElementById('code')
+          block.innerHTML = content
+          hljs.highlightBlock(block)
+          block.parentNode.parentNode.style.display = 'block';
+        })
+    }
+  </script>
+</div>
